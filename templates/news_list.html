@@ -1,0 +1,17 @@
+{% extends 'flatpages/default.html' %}
+{% load my_filters %}
+
+{% block content %}
+  <h1>Все новости</h1>
+  <p>Всего новостей: {{ posts|length }}</p>
+
+  <ul>
+    {% for post in posts %}
+      <li>
+        <a href="{% url 'news_detail' post.id %}">{{ post.title|censor }}</a><br>
+        <small>{{ post.created_at|date:"d.m.Y" }}</small><br>
+        <p>{{ post.text|censor|truncatechars:20 }}</p>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
