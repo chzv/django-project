@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'fpages',
     'news',
     'accounts',
-    'simpleapp'
+    'simpleapp',
+    'django_filters'
 ]
 
 SITE_ID = 1

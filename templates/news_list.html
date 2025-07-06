@@ -3,15 +3,40 @@
 
 {% block content %}
   <h1>Все новости</h1>
-  <p>Всего новостей: {{ posts|length }}</p>
+  <p>Всего новостей: {{ page_obj.paginator.count }}</p>
 
   <ul>
-    {% for post in posts %}
+    {% for post in page_obj %}
       <li>
         <a href="{% url 'news_detail' post.id %}">{{ post.title|censor }}</a><br>
         <small>{{ post.created_at|date:"d.m.Y" }}</small><br>
         <p>{{ post.text|censor|truncatechars:20 }}</p>
       </li>
+    {% empty %}
+      <li>Новостей пока нет.</li>
     {% endfor %}
   </ul>
+
+  {% if page_obj.has_previous %}
+       <a href="?page=1">1</a>
+       {% if page_obj.previous_page_number != 1 %}
+           ...
+           <a href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+       {% endif %}
+   {% endif %}
+
+   {# Информация о текущей странице #}
+   {{ page_obj.number }}
+
+   {# Информация о следующих страницах #}
+   {% if page_obj.has_next %}
+       <a href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+       {% if paginator.num_pages != page_obj.next_page_number %}
+           ...
+           <a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
+       {% endif %}
+   {% endif %}
+  
+
+    </div>
 {% endblock %}
