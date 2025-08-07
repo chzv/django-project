@@ -21,9 +21,12 @@ from .tasks import notify_subscribers
 from django.utils.timezone import now
 from django.contrib import messages
 
+from django.views.decorators.cache import cache_page
+
 
 # ——— Список всех постов (новости + статьи) ———
 @login_required
+@cache_page(60)
 def news_list(request):
     news_list = Post.objects.order_by('-created_at')
     paginator = Paginator(news_list, 10)  
@@ -34,6 +37,7 @@ def news_list(request):
 
 # ——— Детали одного поста ———
 @login_required
+@cache_page(300)
 def news_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
     return render(request, "news_detail.html", {"post": post})

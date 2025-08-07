@@ -1,3 +1,4 @@
+{% load cache %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,6 +13,14 @@
       {% endfor %}
     </ul>
   {% endif %}
+
+  {% cache 600 sidebar %}
+    {% include 'includes/sidebar.html' %}
+  {% endcache %}
+
+  {% cache 600 nav %}
+    {% include 'includes/nav.html' %}
+  {% endcache %}
 
   {% block body %}
     {% block content %}{% endblock content %}
