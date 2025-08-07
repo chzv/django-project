@@ -1,0 +1,3 @@
+<!-- news/templates/account/email/email_confirmation_signup_subject.txt -->
+
+Добро пожаловать в News Portal!

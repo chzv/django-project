@@ -4,7 +4,8 @@ from .views import (
     NewsCreateView, ArticleCreateView,
     NewsUpdateView, ArticleUpdateView,
     NewsDeleteView, ArticleDeleteView,
-    ProfileUpdateView, become_author
+    ProfileUpdateView, become_author,
+    subscribe_to_category
 )
 
 urlpatterns = [
@@ -23,4 +24,5 @@ urlpatterns = [
 
     path('profile/edit/', ProfileUpdateView.as_view(), name='profile_edit'),
     path('become-author/', become_author, name='become_author'),
+    path('subscribe/<int:pk>/', subscribe_to_category, name='subscribe_category'),
 ]

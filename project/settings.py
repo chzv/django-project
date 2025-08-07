@@ -56,6 +56,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.yandex',
     'news.signals',
     'news.apps.NewsConfig',
+
+    'django_apscheduler',
 ]
 
 SITE_ID = 1
@@ -154,13 +156,14 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/'  
+LOGIN_REDIRECT_URL = '/'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True  
 
 ACCOUNT_FORMS = {
     'signup': 'sign.forms.CommonSignupForm'
@@ -175,3 +178,17 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     }
 }
+
+# EMAIL CONFIG
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = 'your_user'  
+EMAIL_HOST_PASSWORD = 'your_password'
+EMAIL_USE_SSL = True
+DEFAULT_FROM_EMAIL = f'{EMAIL_HOST_USER}@yandex.ru'  
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+MANAGERS = [('Admin', 'your_admin_email@example.com')]
+
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+APSCHEDULER_RUN_NOW_TIMEOUT = 25

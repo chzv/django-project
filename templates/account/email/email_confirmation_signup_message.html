@@ -1,0 +1,16 @@
+
+{% load account %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Confirm your registration</title>
+  </head>
+  <body>
+    <h2>Добро пожаловать, {{ user.username }}!</h2>
+    <p>Пожалуйста, подтвердите вашу регистрацию по ссылке ниже:</p>
+    <p><a href="{{ activate_url }}">Активировать аккаунт</a></p>
+    <p>Спасибо, что выбрали нас!</p>
+  </body>
+</html>

@@ -5,5 +5,5 @@ class NewsConfig(AppConfig):
     name = 'news'
 
     def ready(self):
-        from news.signals import connect_signals
-        connect_signals()
+        from . import signals
+        signals.connect_signals()

@@ -1,0 +1,4 @@
+<form method="post" action="{% url 'subscribe_category' category.pk %}">
+    {% csrf_token %}
+    <button type="submit">Подписаться</button>
+</form>

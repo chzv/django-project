@@ -15,6 +15,8 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group
 from django.shortcuts import redirect
 
+from django.http import HttpResponseRedirect
+from .models import Category
 
 
 # ——— Список всех постов (новости + статьи) ———
@@ -84,15 +86,30 @@ class NewsCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     permission_required = 'news.add_post'
 
     def form_valid(self, form):
+        user = self.request.user
+        author, created = Author.objects.get_or_create(user=user)
+
+        # Проверяем количество постов за сегодня
+        today_posts = Post.objects.filter(
+            author=author,
+            created_at__date=now().date()
+        ).count()
+
+        if today_posts >= 3:
+            messages.error(self.request, "Вы не можете публиковать более 3 постов в день.")
+            return redirect('news_list')  # или другой шаблон
+
         post = form.save(commit=False)
         post.type = 'NW'
-
-        user = self.request.user
-        # создаём автора, если его ещё нет
-        author, created = Author.objects.get_or_create(user=user)
         post.author = author
-
         return super().form_valid(form)
+
+    
+@login_required
+def subscribe_to_category(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    category.subscribers.add(request.user)
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
 class ArticleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -104,14 +121,24 @@ class ArticleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
     permission_required = 'news.add_post'
 
     def form_valid(self, form):
-        post = form.save(commit=False)
-        post.type = 'AR'
-
         user = self.request.user
         author, created = Author.objects.get_or_create(user=user)
-        post.author = author
 
+        # Лимит на посты
+        today_posts = Post.objects.filter(
+            author=author,
+            created_at__date=now().date()
+        ).count()
+
+        if today_posts >= 3:
+            messages.error(self.request, "Вы не можете публиковать более 3 постов в день.")
+            return redirect('news_list')
+
+        post = form.save(commit=False)
+        post.type = 'AR'
+        post.author = author
         return super().form_valid(form)
+
 
 
 class NewsUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):

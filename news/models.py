@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     rating = models.IntegerField(default=0)
@@ -8,13 +9,16 @@ class Author(models.Model):
     def update_rating(self):
         posts_rating = sum(post.rating * 3 for post in self.post_set.all())
         comments_rating = sum(comment.rating for comment in self.user.comment_set.all())
-        comments_on_posts_rating = sum(comment.rating for post in self.post_set.all() for comment in post.comment_set.all())
+        comments_on_posts_rating = sum(
+            comment.rating for post in self.post_set.all() for comment in post.comment_set.all()
+        )
         self.rating = posts_rating + comments_rating + comments_on_posts_rating
         self.save()
 
 
 class Category(models.Model):
     name = models.CharField(max_length=64, unique=True)
+    subscribers = models.ManyToManyField(User, related_name='categories', blank=True)
 
     def __str__(self):
         return self.name
@@ -73,5 +77,3 @@ class Comment(models.Model):
 
     def __str__(self):
         return f'{self.user.username}: {self.text[:50]}'
-
-# Create your models here.

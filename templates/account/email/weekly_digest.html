@@ -1,0 +1,10 @@
+<h2>Привет, {{ username }}!</h2>
+<p>Вот подборка новых статей в категории <strong>{{ category.name }}</strong> за неделю:</p>
+
+<ul>
+  {% for post in posts %}
+    <li><a href="http://127.0.0.1:8000/news/{{ post.pk }}">{{ post.title }}</a> — {{ post.preview }}</li>
+  {% endfor %}
+</ul>
+
+<p>Хорошего чтения!</p>
