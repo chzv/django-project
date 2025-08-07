@@ -1,0 +1,7 @@
+<h2>Привет, {{ user.username }}!</h2>
+<p>В категории <strong>{{ post.category.name }}</strong> опубликована новая новость:</p>
+
+<h3>{{ post.title }}</h3>
+<p>{{ post.text|truncatewords:30 }}</p>
+
+<a href="http://127.0.0.1:8000/news/{{ post.pk }}">Читать полностью</a>

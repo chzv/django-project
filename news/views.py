@@ -17,6 +17,9 @@ from django.shortcuts import redirect
 
 from django.http import HttpResponseRedirect
 from .models import Category
+from .tasks import notify_subscribers
+from django.utils.timezone import now
+from django.contrib import messages
 
 
 # ——— Список всех постов (новости + статьи) ———
@@ -89,7 +92,7 @@ class NewsCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         user = self.request.user
         author, created = Author.objects.get_or_create(user=user)
 
-        # Проверяем количество постов за сегодня
+        # Проверка лимита постов
         today_posts = Post.objects.filter(
             author=author,
             created_at__date=now().date()
@@ -97,12 +100,15 @@ class NewsCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 
         if today_posts >= 3:
             messages.error(self.request, "Вы не можете публиковать более 3 постов в день.")
-            return redirect('news_list')  # или другой шаблон
+            return redirect('news_list')
 
         post = form.save(commit=False)
-        post.type = 'NW'
+        post.type = 'NW'  
         post.author = author
-        return super().form_valid(form)
+        response = super().form_valid(form)
+
+        notify_subscribers.delay(self.object.pk)
+        return response
 
     
 @login_required
@@ -124,7 +130,6 @@ class ArticleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
         user = self.request.user
         author, created = Author.objects.get_or_create(user=user)
 
-        # Лимит на посты
         today_posts = Post.objects.filter(
             author=author,
             created_at__date=now().date()
@@ -135,9 +140,12 @@ class ArticleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
             return redirect('news_list')
 
         post = form.save(commit=False)
-        post.type = 'AR'
+        post.type = 'AR'  
         post.author = author
-        return super().form_valid(form)
+        response = super().form_valid(form)
+
+        notify_subscribers.delay(self.object.pk)
+        return response
 
 
 
