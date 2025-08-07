@@ -4,11 +4,21 @@ from django.views.generic import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.db.models import Q
 from datetime import datetime
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
 from .models import Post, Author
 from .forms import PostForm
 
+from django.contrib.auth.models import User
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.models import Group
+from django.shortcuts import redirect
+
+
+
 # ——— Список всех постов (новости + статьи) ———
+@login_required
 def news_list(request):
     news_list = Post.objects.order_by('-created_at')
     paginator = Paginator(news_list, 10)  
@@ -18,12 +28,14 @@ def news_list(request):
 
 
 # ——— Детали одного поста ———
+@login_required
 def news_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
     return render(request, "news_detail.html", {"post": post})
 
 
 # ——— Поиск ———
+@login_required
 def news_search(request):
     title_query = request.GET.get('title', '')
     author_query = request.GET.get('author', '')
@@ -56,12 +68,20 @@ def news_search(request):
     }
     return render(request, 'news_search.html', context)
 
+@login_required
+def become_author(request):
+    authors_group, _ = Group.objects.get_or_create(name='authors')
+    request.user.groups.add(authors_group)
+    return redirect('/')
 
-class NewsCreateView(CreateView):
+
+class NewsCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
     template_name = 'post_form.html'
     success_url = reverse_lazy('news_list')
+    login_url = '/accounts/login/'
+    permission_required = 'news.add_post'
 
     def form_valid(self, form):
         post = form.save(commit=False)
@@ -75,11 +95,13 @@ class NewsCreateView(CreateView):
         return super().form_valid(form)
 
 
-class ArticleCreateView(CreateView):
+class ArticleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
     template_name = 'post_form.html'
     success_url = reverse_lazy('news_list')
+    login_url = '/accounts/login/'
+    permission_required = 'news.add_post'
 
     def form_valid(self, form):
         post = form.save(commit=False)
@@ -92,27 +114,45 @@ class ArticleCreateView(CreateView):
         return super().form_valid(form)
 
 
-class NewsUpdateView(UpdateView):
+class NewsUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Post
     form_class = PostForm
     template_name = 'post_form.html'
     success_url = reverse_lazy('news_list')
+    login_url = '/accounts/login/' 
+    permission_required = 'news.change_post'
 
 
-class ArticleUpdateView(UpdateView):
+class ArticleUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Post
     form_class = PostForm
     template_name = 'post_form.html'
     success_url = reverse_lazy('news_list')
+    login_url = '/accounts/login/'
+    permission_required = 'news.change_post'
 
 
 class NewsDeleteView(DeleteView):
     model = Post
     template_name = 'post_delete.html'
     success_url = reverse_lazy('news_list')
+    login_url = '/accounts/login/'
 
 
 class ArticleDeleteView(DeleteView):
     model = Post
     template_name = 'post_delete.html'
     success_url = reverse_lazy('news_list')
+    login_url = '/accounts/login/'
+
+
+class ProfileUpdateView(LoginRequiredMixin, UpdateView):
+    model = User
+    fields = ['first_name', 'last_name', 'email']
+    template_name = 'account/profile_edit.html'
+    success_url = '/'
+
+    def get_object(self):
+        return self.request.user
+
+

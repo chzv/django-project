@@ -3,7 +3,8 @@ from .views import (
     news_list, news_detail, news_search,
     NewsCreateView, ArticleCreateView,
     NewsUpdateView, ArticleUpdateView,
-    NewsDeleteView, ArticleDeleteView
+    NewsDeleteView, ArticleDeleteView,
+    ProfileUpdateView, become_author
 )
 
 urlpatterns = [
@@ -19,4 +20,7 @@ urlpatterns = [
 
     path('news/<int:pk>/delete/', NewsDeleteView.as_view(), name='news_delete'),
     path('articles/<int:pk>/delete/', ArticleDeleteView.as_view(), name='article_delete'),
+
+    path('profile/edit/', ProfileUpdateView.as_view(), name='profile_edit'),
+    path('become-author/', become_author, name='become_author'),
 ]

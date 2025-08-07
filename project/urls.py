@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.shortcuts import redirect
+
 
 urlpatterns = [
    path('admin/', admin.site.urls),
@@ -24,4 +26,9 @@ urlpatterns = [
    # подключались к главному приложению с префиксом products/.
    path('products/', include('simpleapp.urls')),
    path('news/', include('news.urls')),
+#    path('accounts/', include('allauth.urls')),
+#    path('', include('protect.urls')),
+   path('sign/', include('sign.urls')),
+   path('accounts/', include('allauth.urls')),
+   path('', include('news.urls')),
 ]
