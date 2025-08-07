@@ -22,6 +22,7 @@ from django.utils.timezone import now
 from django.contrib import messages
 
 from django.views.decorators.cache import cache_page
+from django.core.cache import cache
 
 
 # ——— Список всех постов (новости + статьи) ———
@@ -37,9 +38,14 @@ def news_list(request):
 
 # ——— Детали одного поста ———
 @login_required
-@cache_page(300)
 def news_detail(request, pk):
-    post = get_object_or_404(Post, pk=pk)
+    cache_key = f'post-{pk}'
+    post = cache.get(cache_key)
+
+    if not post:
+        post = get_object_or_404(Post, pk=pk)
+        cache.set(cache_key, post)
+
     return render(request, "news_detail.html", {"post": post})
 
 
